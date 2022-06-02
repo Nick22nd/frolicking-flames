@@ -1,0 +1,45 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Practice template</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    #app {
+        width: 100%;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        place-items: center;
+    }
+    .container {
+        background-color: steelblue;
+        width: 10rem;
+        height: 10rem;
+    }
+    .item {
+        /* line-height: 10rem;
+        text-align: center; */
+        position: absolute;
+    }
+</style>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- <div class="item">Test</div> -->
+            <canvas id="basicParticleSystemCanvas" width="400" height="400"></canvas>
+            
+        </div>
+        <!-- <div class="container">
+            <div class="item"></div>
+        </div> -->
+    </div>
+    <script src="../dist/index.js"></script>
+</body>
+</html>

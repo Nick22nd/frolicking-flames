@@ -1,0 +1,25 @@
+{
+  "name": "particle-system",
+  "version": "0.0.1",
+  "description": "generate some particle on canvas",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc -d",
+    "start": "webpack --watch",
+    "prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "keywords": [
+    "canvas",
+    "particle",
+    "animation"
+  ],
+  "author": "Nick22nd",
+  "license": "Apache-2.0"
+}
