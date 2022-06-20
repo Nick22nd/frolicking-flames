@@ -2,8 +2,8 @@ import { Particle } from "./Particle";
 import { Vector2 } from "./Vector2";
 import { ChamberBox } from "./ChamberBox";
 export class ParticleSystem {
-    private particles: Array<Particle> = []
-    private effectors: Array<ChamberBox> = []
+     particles: Array<Particle> = []
+     effectors: Array<ChamberBox> = []
 
     gravity: Vector2
     constructor() {
@@ -64,10 +64,9 @@ export class ParticleSystem {
     }
 
      applyEffectors() {
-        for (var j in this.effectors) {
-            var applys = this.effectors[j].applys;
-            for (var i in this.particles)
-                applys(this.particles[i]);    
+        for (const effector of this.effectors) {
+            for (const particle of this.particles)
+                effector.applys(particle);    
         }
     }
     
