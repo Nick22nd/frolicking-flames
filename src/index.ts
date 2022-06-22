@@ -61,7 +61,7 @@ function basicParticleSystem() {
     start("basicParticleSystemCanvas", step);
 }
 
-basicParticleSystem();
+// basicParticleSystem();
 function interactiveEmit() {
     let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
     isContinue: boolean, timeoutID: number;
@@ -142,16 +142,13 @@ function interactiveEmit() {
         newMousePosition = new Vector2(e.offsetX, e.offsetY);
     }
 }
-interactiveEmit();
+// interactiveEmit();
 
 function kinematics() {
     let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
     isContinue: boolean, timeoutID: number;
     let ps = new ParticleSystem();
-    let dt = 0.1;
-    let position = new Vector2(10, 200);
-    let velocity = new Vector2(50, -50);
-    let acceleration = new Vector2(0, 10);
+
     function start(canvasName: string, func: Function) {
         if (timeoutID)
             stop();
@@ -180,10 +177,56 @@ function kinematics() {
         if (ctx != null)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+    let dt = 0.1;
+    let radius = 100;
+    let angleSpeed = 2 * Math.PI / 4; // 1s 1/4圈
+    let position = new Vector2(300, 200) // 初始位置 center 200, 200
+    let velocity = new Vector2(0, - Math.PI * radius / 2); // 初始速度, 顺时针
+    // let position = new Vector2(radius * Math.cos(angleSpeed * 0), radius * Math.sin(angleSpeed * 0)).add(new Vector2(200, 200));
+    // let velocity = new Vector2(- radius * angleSpeed *  Math.sin(angleSpeed * 0), radius * angleSpeed * Math.cos(angleSpeed * 0));
+    // let acceleration = new Vector2(0, 10);
+    let theta = 0;
+    let count = 0;
+    let angle = 0;
+
+    // circular motion
+    let generateCircularMotionAcceleration = (time: number) => {
+        let ret;
+        //
+        let ax = - radius * angleSpeed * angleSpeed *  Math.cos(angle + angleSpeed * time);
+        let ay = - radius * angleSpeed * angleSpeed * Math.sin(angle + angleSpeed * time);
+        ret = new Vector2(ax, ay).multiply(time);
+        // theta += time * angleSpeed;
+        // let ret =  new Vector2(Math.cos(theta), Math.cos(theta)).multiply(-1 * Math.pow(angleSpeed, 2) );
+        // let ret = velocity.multiply(dt * w);
+        // let ret = acceleration.multiply(dt)
+        // let ret = new Vector2(- angleSpeed * angleSpeed * Math.cos(theta) * radius , - angleSpeed * angleSpeed * Math.sin(theta) * radius);
+        if(velocity.y > 0) {
+
+            // console.log("count", count);
+        }
+        count++;
+        // console.log(ret, theta / (Math.PI * 2));
+        return ret;
+          
+    }
+    function generateVelocity(time: number) {
+        let ret;
+        let vx = - radius * angleSpeed *  Math.sin(angle + angleSpeed * time);
+        let vy = radius * angleSpeed * Math.cos(angle + angleSpeed * time);
+        ret = new Vector2(vx, vy);
+        return ret
+    }
     function step() {
         position = position.add(velocity.multiply(dt));
-        velocity = velocity.add(acceleration.multiply(dt));
-
+        // velocity = generateVelocity(dt); // OK
+        velocity = velocity.add(generateCircularMotionAcceleration(dt));
+        angle = angle + angleSpeed * dt;
+        // position = position.add(velocity.multiply(dt));
+        // velocity = velocity.add(acceleration.multiply(dt));
+        if(angle < 3 * Math.PI) {
+            console.log(Math.round(angle/ Math.PI) ,'position', position,'velocity', velocity);
+        }
         ctx.strokeStyle = "#FF0000";
         ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
