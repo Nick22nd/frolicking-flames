@@ -65,8 +65,8 @@ export class ParticleSystem {
     }
 
      applyGravity() {
-        // for (var i in this.particles)
-            // this.particles[i].config.acceleration = this.gravity;
+        for (var i in this.particles)
+            this.particles[i].config.acceleration = this.gravity;
     }
 
      applyEffectors() {

@@ -5,6 +5,7 @@ import { ParticleConfig } from "./type";
 import { Color } from "./Color";
 import { ChamberBox } from "./ChamberBox";
 import { Scatter } from "./Scatter";
+import { sampleColor, sampleDirection, sampleNumber } from "./util";
 
 
 function basicParticleSystem() {
@@ -99,28 +100,16 @@ function interactiveEmit() {
         if (ctx != null)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    function sampleDirection(angle1: number, angle2: number) {
-        let t = Math.random();
-        let theta = angle1 * t + angle2 * (1 - t);
-        return new Vector2(Math.cos(theta), Math.sin(theta));
-    }
-
-    function sampleColor(color1: Color, color2: Color) {
-        let t = Math.random();
-        return color1.multiply(t).add(color2.multiply(1 - t));
-    }
-
-    function sampleNumber(value1: number, value2: number) {
-        let t = Math.random();
-        return value1 * t + value2 * (1 - t);
-    }
 
     function step() {
         // let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
+        // velocity = velocity.add(sampleDirection(0, Math.PI * 2).multiply(20));
+
         let velocity = sampleDirection(0, Math.PI * 2).multiply(20);
+
         let color = sampleColor(Color.red, Color.yellow);
         let life = 3;
-        let size = sampleNumber(2, 4);
+        let size = sampleNumber(10, 20);
         let config: ParticleConfig = {
             position: newMousePosition,
             velocity: velocity,

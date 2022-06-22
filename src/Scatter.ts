@@ -20,16 +20,17 @@ export class Scatter {
     }
     init(config: scatterConfig) {
         this.life = config.life || 2
-        this.amount = config.amount || 10
-        this.startSize = config.startSize || 4
+        this.amount = config.amount || 20
+        this.startSize = config.startSize || 1
         this.endSize = config.endSize || 9
     }
     applys(particle: Particle) {
         console.log(particle.config.position.y, particle.config.life,  'speed', particle.config.velocity);
         // let condition = Number(particle.config.age.toFixed(2)) === 2.9
-        let condition = Number(particle.config.position.y.toFixed(0)) === 300 && particle.config.life === 3
+        // let condition = [300, 301, 302].includes(Number(particle.config.position.y.toFixed(0))) && particle.config.life === 3
+        let condition = Number(particle.config.position.y.toFixed(0)) > 300 && particle.config.life === 3
         if(condition) {
-            // particle.config.age = 0
+            particle.config.age = 3
             for (let i = 0; i < this.amount; i++) {
                 let newConfig = {
                     position: particle.config.position,
