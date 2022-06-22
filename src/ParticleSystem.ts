@@ -1,9 +1,11 @@
 import { Particle } from "./Particle";
 import { Vector2 } from "./Vector2";
 import { ChamberBox } from "./ChamberBox";
+import { Scatter } from "./Scatter";
+type effectorType = ChamberBox | Scatter
 export class ParticleSystem {
      particles: Array<Particle> = []
-     effectors: Array<ChamberBox> = []
+     effectors: Array<effectorType> = []
 
     gravity: Vector2
     constructor() {
@@ -53,14 +55,18 @@ export class ParticleSystem {
     }
 
      kill(index: number) {
-        if (this.particles.length > 1)
+        if (this.particles.length > 1) {
             this.particles[index] = this.particles[this.particles.length - 1];
-        this.particles.pop();
+        }
+        // this.particles.pop();
+        this.particles = this.particles.filter(item => item.config.age < item.config.life)
+        console.log("particle die");
+        
     }
 
      applyGravity() {
-        for (var i in this.particles)
-            this.particles[i].config.acceleration = this.gravity;
+        // for (var i in this.particles)
+            // this.particles[i].config.acceleration = this.gravity;
     }
 
      applyEffectors() {

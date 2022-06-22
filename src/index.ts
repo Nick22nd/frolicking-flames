@@ -4,6 +4,7 @@ import { Particle } from "./Particle";
 import { ParticleConfig } from "./type";
 import { Color } from "./Color";
 import { ChamberBox } from "./ChamberBox";
+import { Scatter } from "./Scatter";
 
 
 function basicParticleSystem() {
@@ -67,6 +68,7 @@ function interactiveEmit() {
     isContinue: boolean, timeoutID: number;
     let ps = new ParticleSystem();
     ps.effectors.push(new ChamberBox(0, 0, 400, 400));
+    ps.effectors.push(new Scatter({}, ps))
     let dt = 0.01;
     let oldMousePosition = Vector2.zero, newMousePosition = Vector2.zero;
     function start(canvasName: string, func: Function) {
@@ -114,10 +116,10 @@ function interactiveEmit() {
     }
 
     function step() {
-        let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
-        velocity = velocity.add(sampleDirection(0, Math.PI * 2).multiply(20));
+        // let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
+        let velocity = sampleDirection(0, Math.PI * 2).multiply(20);
         let color = sampleColor(Color.red, Color.yellow);
-        let life = sampleNumber(1, 2);
+        let life = 3;
         let size = sampleNumber(2, 4);
         let config: ParticleConfig = {
             position: newMousePosition,
@@ -126,13 +128,21 @@ function interactiveEmit() {
             color: color,
             size: size
         }
-        ps.emit(new Particle(config));
+        // ps.emit(new Particle(config));
         oldMousePosition = newMousePosition;
 
         ps.simulate(dt);
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save()
+        // ctx.lineWidth = 2
+        // ctx.strokeStyle ='#f36';  
+        ctx.fillStyle = "white"
+        ctx.fillRect(0, 300, 400,3)
+        ctx.restore()
+
         ps.render(ctx);
     }
 
@@ -141,8 +151,19 @@ function interactiveEmit() {
     canvas.onmousemove = function (e) {
         newMousePosition = new Vector2(e.offsetX, e.offsetY);
     }
+    canvas.onclick = function(e) {
+        let config: ParticleConfig = {
+            position: new Vector2(e.offsetX, e.offsetY),
+            velocity: sampleDirection(0, Math.PI * 2).multiply(60),
+            life: 3,
+            color: sampleColor(Color.red, Color.yellow),
+            
+            size: 10
+        }
+        ps.emit(new Particle(config));
+    }
 }
-// interactiveEmit();
+interactiveEmit();
 
 function kinematics() {
     let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
@@ -155,8 +176,9 @@ function kinematics() {
         console.log('canvasName: ', canvasName);
     
         canvas = document.getElementById(canvasName) as HTMLCanvasElement;
+
         console.log(canvas, document.getElementById(canvasName));
-    
+        document
         ctx = canvas.getContext("2d");
         isContinue = true;
     
@@ -236,6 +258,13 @@ function kinematics() {
         ctx.stroke();
     }
         
-    start("kinematicsCancas", step);
+    document.getElementById('start').addEventListener('click', () => {
+        start("kinematicsCancas", step);
+    })
+    document.getElementById('stop').addEventListener('click', () => {
+        stop();
+        clearCanvas()        
+    })
+
 }
-kinematics();
+// kinematics();
