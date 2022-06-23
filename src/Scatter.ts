@@ -25,7 +25,7 @@ export class Scatter {
         this.endSize = config.endSize || 9
     }
     applys(particle: Particle) {
-        console.log(particle.config.position.y, particle.config.life,  'speed', particle.config.velocity);
+        // console.log(particle.config.position.y, particle.config.life,  'speed', particle.config.velocity);
         // let condition = Number(particle.config.age.toFixed(2)) === 2.9
         let condition = Number(particle.config.position.y.toFixed(0)) >= 300 && particle.config.life === 3
                 && particle.config.age <= 3

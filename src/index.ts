@@ -71,6 +71,7 @@ function interactiveEmit() {
     ps.effectors.push(new ChamberBox(0, 0, 400, 400));
     ps.effectors.push(new Scatter({}, ps))
     let dt = 0.01;
+    let frame = 0;
     let oldMousePosition = Vector2.zero, newMousePosition = Vector2.zero;
     function start(canvasName: string, func: Function) {
         if (timeoutID)
@@ -85,10 +86,21 @@ function interactiveEmit() {
     
         let loop = function () {
             func();
-            if (isContinue)
-                timeoutID = setTimeout(loop, 10);
+            if (isContinue){
+                // timeoutID = setTimeout(loop, 10);
+                window.requestAnimationFrame(loop)
+            }
         }
         loop();
+        setInterval(() => {
+            ctx.save()
+            ctx.fillStyle = 'white'
+            ctx.fillText(frame.toString(), 10, 10)
+            console.log('frame: ', frame);
+            frame = 0
+            ctx.restore()
+
+        }, 1000)
     }
     
     function stop() {
@@ -102,11 +114,12 @@ function interactiveEmit() {
     }
 
     function step() {
+        frame++;
         // let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
         let velocity = sampleDirection(0, Math.PI * 2).multiply(20);
         let color = sampleColor(Color.red, Color.yellow);
         let life = 3;
-        let size = sampleNumber(2, 4);
+        let size = sampleNumber(4, 10);
         let config: ParticleConfig = {
             position: newMousePosition,
             velocity: velocity,
@@ -118,15 +131,17 @@ function interactiveEmit() {
         oldMousePosition = newMousePosition;
 
         ps.simulate(dt);
-
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         ctx.save()
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.rect(0, 0, 400, 300)
+        ctx.rect(0, 330, 400, 70)
+        ctx.clip();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // ctx.save()
         // ctx.lineWidth = 2
         // ctx.strokeStyle ='#f36';  
-        ctx.fillStyle = "white"
-        ctx.fillRect(0, 300, 400,3)
+        // ctx.fillStyle = "white"
+        // ctx.fillRect(0, 300, 400,30)
         ctx.restore()
 
         ps.render(ctx);
@@ -138,16 +153,20 @@ function interactiveEmit() {
         newMousePosition = new Vector2(e.offsetX, e.offsetY);
     }
     canvas.onclick = function(e) {
-        let config: ParticleConfig = {
-            position: new Vector2(e.offsetX, e.offsetY),
-            velocity: sampleDirection(0, Math.PI * 2).multiply(60),
-            life: 3,
-            color: sampleColor(Color.red, Color.yellow),
-            index: count,
-            size: 10
+        let tt = 30;
+        while(tt > 0) {
+            let config: ParticleConfig = {
+                position: new Vector2(e.offsetX, e.offsetY),
+                velocity: sampleDirection(0, Math.PI * 2).multiply(100),
+                life: 3,
+                color: sampleColor(Color.red, Color.yellow),
+                index: count,
+                size: 10
+            }
+            count += 1;
+            ps.emit(new Particle(config));
+            tt--;
         }
-        count += 1;
-        ps.emit(new Particle(config));
     }
     // canvas.ontouchstart = function(e) {
     //     let config: ParticleConfig = {

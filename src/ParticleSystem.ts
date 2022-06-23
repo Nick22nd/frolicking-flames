@@ -48,6 +48,10 @@ export class ParticleSystem {
         for (var i = 0; i < this.particles.length; ) {
             var p = this.particles[i];
             p.config.age += dt;
+            // scattered particle
+            if(p.config.index === undefined) {
+                p.config.size = p.config.size <= 1 ? p.config.size : p.config.size - dt
+            }
             if (p.config.age >= p.config.life)
                 this.kill(i);
             else
