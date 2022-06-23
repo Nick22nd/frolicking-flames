@@ -38,7 +38,8 @@ export interface ParticleConfig {
     age?: number,
     life: number, 
     color: Color, 
-    size: number
+    size: number,
+    index?: number
 }
 declare class Color {
     r: number;

@@ -4,6 +4,8 @@ import { Particle } from "./Particle";
 import { ParticleConfig } from "./type";
 import { Color } from "./Color";
 import { ChamberBox } from "./ChamberBox";
+import { Scatter } from "./Scatter";
+import {sampleColor, sampleDirection, sampleNumber} from "./util";
 
 
 function basicParticleSystem() {
@@ -61,12 +63,13 @@ function basicParticleSystem() {
     start("basicParticleSystemCanvas", step);
 }
 
-basicParticleSystem();
+// basicParticleSystem();
 function interactiveEmit() {
     let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
     isContinue: boolean, timeoutID: number;
     let ps = new ParticleSystem();
     ps.effectors.push(new ChamberBox(0, 0, 400, 400));
+    ps.effectors.push(new Scatter({}, ps))
     let dt = 0.01;
     let oldMousePosition = Vector2.zero, newMousePosition = Vector2.zero;
     function start(canvasName: string, func: Function) {
@@ -97,27 +100,12 @@ function interactiveEmit() {
         if (ctx != null)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    function sampleDirection(angle1: number, angle2: number) {
-        let t = Math.random();
-        let theta = angle1 * t + angle2 * (1 - t);
-        return new Vector2(Math.cos(theta), Math.sin(theta));
-    }
-
-    function sampleColor(color1: Color, color2: Color) {
-        let t = Math.random();
-        return color1.multiply(t).add(color2.multiply(1 - t));
-    }
-
-    function sampleNumber(value1: number, value2: number) {
-        let t = Math.random();
-        return value1 * t + value2 * (1 - t);
-    }
 
     function step() {
-        let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
-        velocity = velocity.add(sampleDirection(0, Math.PI * 2).multiply(20));
+        // let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
+        let velocity = sampleDirection(0, Math.PI * 2).multiply(20);
         let color = sampleColor(Color.red, Color.yellow);
-        let life = sampleNumber(1, 2);
+        let life = 3;
         let size = sampleNumber(2, 4);
         let config: ParticleConfig = {
             position: newMousePosition,
@@ -126,21 +114,52 @@ function interactiveEmit() {
             color: color,
             size: size
         }
-        ps.emit(new Particle(config));
+        // ps.emit(new Particle(config));
         oldMousePosition = newMousePosition;
 
         ps.simulate(dt);
 
         ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save()
+        // ctx.lineWidth = 2
+        // ctx.strokeStyle ='#f36';  
+        ctx.fillStyle = "white"
+        ctx.fillRect(0, 300, 400,3)
+        ctx.restore()
+
         ps.render(ctx);
     }
 
     start("interactiveEmitCanvas", step);
-
+    let count = 0
     canvas.onmousemove = function (e) {
         newMousePosition = new Vector2(e.offsetX, e.offsetY);
     }
+    canvas.onclick = function(e) {
+        let config: ParticleConfig = {
+            position: new Vector2(e.offsetX, e.offsetY),
+            velocity: sampleDirection(0, Math.PI * 2).multiply(60),
+            life: 3,
+            color: sampleColor(Color.red, Color.yellow),
+            index: count,
+            size: 10
+        }
+        count += 1;
+        ps.emit(new Particle(config));
+    }
+    // canvas.ontouchstart = function(e) {
+    //     let config: ParticleConfig = {
+    //         position: new Vector2(200, 200),
+    //         velocity: sampleDirection(0, Math.PI * 2).multiply(60),
+    //         life: 3,
+    //         color: sampleColor(Color.red, Color.yellow),
+    //
+    //         size: 10
+    //     }
+    //     ps.emit(new Particle(config));
+    // }
 }
 interactiveEmit();
 
@@ -148,18 +167,16 @@ function kinematics() {
     let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
     isContinue: boolean, timeoutID: number;
     let ps = new ParticleSystem();
-    let dt = 0.1;
-    let position = new Vector2(10, 200);
-    let velocity = new Vector2(50, -50);
-    let acceleration = new Vector2(0, 10);
+
     function start(canvasName: string, func: Function) {
         if (timeoutID)
             stop();
         console.log('canvasName: ', canvasName);
     
         canvas = document.getElementById(canvasName) as HTMLCanvasElement;
+
         console.log(canvas, document.getElementById(canvasName));
-    
+        document
         ctx = canvas.getContext("2d");
         isContinue = true;
     
@@ -180,10 +197,56 @@ function kinematics() {
         if (ctx != null)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+    let dt = 0.1;
+    let radius = 100;
+    let angleSpeed = 2 * Math.PI / 4; // 1s 1/4圈
+    let position = new Vector2(300, 200) // 初始位置 center 200, 200
+    let velocity = new Vector2(0, - Math.PI * radius / 2); // 初始速度, 顺时针
+    // let position = new Vector2(radius * Math.cos(angleSpeed * 0), radius * Math.sin(angleSpeed * 0)).add(new Vector2(200, 200));
+    // let velocity = new Vector2(- radius * angleSpeed *  Math.sin(angleSpeed * 0), radius * angleSpeed * Math.cos(angleSpeed * 0));
+    // let acceleration = new Vector2(0, 10);
+    let theta = 0;
+    let count = 0;
+    let angle = 0;
+
+    // circular motion
+    let generateCircularMotionAcceleration = (time: number) => {
+        let ret;
+        //
+        let ax = - radius * angleSpeed * angleSpeed *  Math.cos(angle + angleSpeed * time);
+        let ay = - radius * angleSpeed * angleSpeed * Math.sin(angle + angleSpeed * time);
+        ret = new Vector2(ax, ay).multiply(time);
+        // theta += time * angleSpeed;
+        // let ret =  new Vector2(Math.cos(theta), Math.cos(theta)).multiply(-1 * Math.pow(angleSpeed, 2) );
+        // let ret = velocity.multiply(dt * w);
+        // let ret = acceleration.multiply(dt)
+        // let ret = new Vector2(- angleSpeed * angleSpeed * Math.cos(theta) * radius , - angleSpeed * angleSpeed * Math.sin(theta) * radius);
+        if(velocity.y > 0) {
+
+            // console.log("count", count);
+        }
+        count++;
+        // console.log(ret, theta / (Math.PI * 2));
+        return ret;
+          
+    }
+    function generateVelocity(time: number) {
+        let ret;
+        let vx = - radius * angleSpeed *  Math.sin(angle + angleSpeed * time);
+        let vy = radius * angleSpeed * Math.cos(angle + angleSpeed * time);
+        ret = new Vector2(vx, vy);
+        return ret
+    }
     function step() {
         position = position.add(velocity.multiply(dt));
-        velocity = velocity.add(acceleration.multiply(dt));
-
+        // velocity = generateVelocity(dt); // OK
+        velocity = velocity.add(generateCircularMotionAcceleration(dt));
+        angle = angle + angleSpeed * dt;
+        // position = position.add(velocity.multiply(dt));
+        // velocity = velocity.add(acceleration.multiply(dt));
+        if(angle < 3 * Math.PI) {
+            console.log(Math.round(angle/ Math.PI) ,'position', position,'velocity', velocity);
+        }
         ctx.strokeStyle = "#FF0000";
         ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
@@ -193,6 +256,13 @@ function kinematics() {
         ctx.stroke();
     }
         
-    start("kinematicsCancas", step);
+    document.getElementById('start').addEventListener('click', () => {
+        start("kinematicsCancas", step);
+    })
+    document.getElementById('stop').addEventListener('click', () => {
+        stop();
+        clearCanvas()        
+    })
+
 }
-kinematics();
+// kinematics();

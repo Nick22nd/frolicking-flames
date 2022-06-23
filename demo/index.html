@@ -19,9 +19,14 @@
         place-items: center;
     }
     .container {
-        background-color: steelblue;
+        /* background-color: steelblue; */
         width: 10rem;
         height: 10rem;
+        /* border: 1px solid black; */
+    }
+    .container canvas {
+        border: 1px solid black;
+
     }
     .item {
         /* line-height: 10rem;
@@ -31,19 +36,21 @@
 </style>
 <body>
     <div id="app">
-        <div class="container">
-            <!-- <div class="item">Test</div> -->
-            <canvas id="basicParticleSystemCanvas" width="400" height="400"></canvas>
-            
-        </div>
+<!--        <div class="container">-->
+<!--            &lt;!&ndash; <div class="item">Test</div> &ndash;&gt;-->
+<!--            <canvas id="basicParticleSystemCanvas" width="400" height="400"></canvas>-->
+<!--            -->
+<!--        </div>-->
         <div class="container">
             <canvas id="interactiveEmitCanvas" width="400" height="400"></canvas>
             <!-- <div class="item"></div> kinematicsCancas-->
         </div>
-        <div class="container">
-            <canvas id="kinematicsCancas" width="400" height="400"></canvas>
-            <!-- <div class="item"></div> kinematicsCancas-->
-        </div>
+<!--        <div class="container">-->
+<!--            <canvas id="kinematicsCancas" width="400" height="400"></canvas>-->
+<!--            &lt;!&ndash; <div class="item"></div> kinematicsCancas&ndash;&gt;-->
+<!--            <button id="start">Start</button>-->
+<!--            <button id="stop">stop</button>-->
+<!--        </div>-->
     </div>
     <script src="../dist/index.js"></script>
 </body>
