@@ -93,10 +93,12 @@ function interactiveEmit() {
         }
         loop();
         setInterval(() => {
+            let countOfParticles = ps.particles.length
             ctx.save()
             ctx.fillStyle = 'white'
-            ctx.fillText(frame.toString(), 10, 10)
-            console.log('frame: ', frame);
+            ctx.fillText(`fps: ${frame}`, 10, 10)
+            ctx.fillText(`particle: ${countOfParticles}`, 10, 20)
+            // console.log('frame: ', frame);
             frame = 0
             ctx.restore()
 
