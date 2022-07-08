@@ -1,5 +1,16 @@
-import { ParticleConfig } from "./type";
+import { Color } from "./Color";
 import { Vector2 } from "./Vector2";
+
+export interface ParticleConfig {
+    position: Vector2, 
+    velocity: Vector2,
+    acceleration?: Vector2,
+    age?: number,
+    life: number, 
+    color: Color, 
+    size: number,
+    index?: number
+}
 export class Particle {
     config: ParticleConfig
     // position: any;
