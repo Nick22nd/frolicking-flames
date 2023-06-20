@@ -6,6 +6,7 @@ import { ChamberBox } from "./ChamberBox";
 import { Scatter } from "./Scatter";
 import {sampleColor, sampleDirection, sampleNumber} from "./util";
 import { Rect } from "./Rect";
+import {Sprite} from "./Sprite";
 
 function interactiveEmit() {
     let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
@@ -13,7 +14,7 @@ function interactiveEmit() {
     let ps = new ParticleSystem();
     ps.effectors.push(new ChamberBox(0, 0, 400, 400));
     let scatterEffect = new Scatter({}, ps)
-    ps.effectors.push(scatterEffect)
+    // ps.effectors.push(scatterEffect)
     let dt = 0.01;
     let frame = 0;
     let startPosition = new Vector2(220, 315);
@@ -56,23 +57,11 @@ function interactiveEmit() {
         if (ctx != null)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-
+    let redBall = new Sprite(new Vector2(300, 200), new Color(255,51,0))
+    let blueBall = new Sprite(new Vector2(100, 200), new Color(0,153,255))
+    let rotateDirect = 0
     function step() {
         frame++;
-        // let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
-        let velocity = sampleDirection(0, Math.PI * 2).multiply(20);
-        let color = sampleColor(Color.red, Color.yellow);
-        let life = 3;
-        let size = sampleNumber(4, 10);
-        let config: ParticleConfig = {
-            position: newMousePosition,
-            velocity: velocity,
-            life: life,
-            color: color,
-            size: size
-        }
-        // ps.emit(new Particle(config));
-        oldMousePosition = newMousePosition;
 
         ps.simulate(dt);
 
@@ -94,6 +83,13 @@ function interactiveEmit() {
         ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
         ctx.fillRect(spriteRect.left, spriteRect.top, spriteRect.width, spriteRect.height)
         ctx.restore();
+        redBall.update(dt)
+        redBall.render(ctx)
+        blueBall.update(dt)
+        blueBall.render(ctx)
+        if(redBall.collision(spriteRect)) {
+            emit(new Vector2(redBall.position.x, redBall.position.y ))
+        }
         ps.render(ctx);
     }
 
@@ -102,11 +98,11 @@ function interactiveEmit() {
     canvas.onmousemove = function (e) {
         newMousePosition = new Vector2(e.offsetX, e.offsetY);
     }
-    canvas.onclick = function(e) {
-        let tt = 30;
-        while(tt > 0) {
+    function emit(e: Vector2) {
+        let tt = 10;
+        while (tt > 0) {
             let config: ParticleConfig = {
-                position: new Vector2(e.offsetX, e.offsetY),
+                position: e,
                 velocity: sampleDirection(0, Math.PI * 2).multiply(100),
                 life: 3,
                 color: sampleColor(Color.red, Color.yellow),
@@ -118,31 +114,39 @@ function interactiveEmit() {
             tt--;
         }
     }
-    document.getElementById('moveleft').onclick = (e) => {
+    canvas.onclick = function(e) {
+        console.log("click: ", e.offsetX, e.offsetY)
+        if(e.offsetX > 200) {
+            rotateDirect = 1
+        } else {
+            rotateDirect = -1
+        }
+        blueBall.setRotateDirector(rotateDirect)
+        redBall.setRotateDirector(rotateDirect)
+    }
+    document.getElementById('moveleft').onclick = () => {
         spriteRect.move(new Vector2(-20, 0));
         console.log('bound, l r', spriteRect.left, spriteRect.right);
     }
-    document.getElementById('moveright').onclick = (e) => {
+    document.getElementById('moveright').onclick = () => {
         spriteRect.move(new Vector2(20, 0));
         console.log('bound, l r', spriteRect.left, spriteRect.right);
     }
     document.onkeydown = (e) => {
         if(e.key == 'a') {
             spriteRect.move(new Vector2(-20, 0));
+            rotateDirect = 1
         } else if(e.key == 'd') {
             spriteRect.move(new Vector2(20, 0));
+            rotateDirect = -1
+        } else if(e.key == 'm') {
+            stop()
         }
+        else if(e.key == 'n') {
+            isContinue = true
+        }
+        blueBall.setRotateDirector(rotateDirect)
+        redBall.setRotateDirector(rotateDirect)
     }
-    // canvas.ontouchstart = function(e) {
-    //     let config: ParticleConfig = {
-    //         position: new Vector2(200, 200),
-    //         velocity: sampleDirection(0, Math.PI * 2).multiply(60),
-    //         life: 3,
-    //         color: sampleColor(Color.red, Color.yellow),
-    //
-    //         size: 10
-    //     }
-    //     ps.emit(new Particle(config));
-    // }
 }
 interactiveEmit();
