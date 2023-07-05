@@ -61,7 +61,7 @@ function basicParticleSystem() {
     start("basicParticleSystemCanvas", step);
 }
 
-basicParticleSystem();
+// basicParticleSystem();
 function interactiveEmit() {
     let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
     isContinue: boolean, timeoutID: number;
@@ -195,4 +195,4 @@ function kinematics() {
         
     start("kinematicsCancas", step);
 }
-kinematics();
+// kinematics();

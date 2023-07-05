@@ -1,7 +1,7 @@
 # ParticleSystem
 ## Introduction
 
-This is a basic particle System that is based on[Milo Yip's Code](https://www.cnblogs.com/miloyip/archive/2010/06/14/Kinematics_ParticleSystem.html)
+This is a basic particle System that is based on [Milo Yip's Code](https://www.cnblogs.com/miloyip/archive/2010/06/14/Kinematics_ParticleSystem.html)
 
 ## some keywords
 

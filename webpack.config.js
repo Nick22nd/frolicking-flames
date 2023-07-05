@@ -4,6 +4,11 @@ module.exports = {
   mode: 'production',
   entry: './src/index.ts',
   devtool: 'inline-source-map',
+  devServer: {
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    }
+  },
   module: {
     rules: [
       {
@@ -23,5 +28,13 @@ module.exports = {
   },
   externals: {
     
-  }
+  },
+  optimization: {
+    // runtimeChunk: 'single'
+  },
+  performance: {
+    hints: false,
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000
+  },
 };
