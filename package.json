@@ -2,20 +2,15 @@
   "name": "particle-system",
   "version": "0.0.1",
   "description": "generate some particle on canvas",
-  "types": "lib/index.d.ts",
-  "main": "lib/index.js",
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -d",
-    "start": "webpack --watch",
-    "dev": "node server.js",
+    "build": "node ./build/build.mjs",
+    "dev": "node ./build/dev-fast.mjs",
     "prepublish": "npm run build"
   },
   "devDependencies": {
-    "ts-loader": "^6.2.2",
-    "typescript": "^3.8.3",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^4.15.1"
+    "esbuild": "0.18.17"
   },
   "keywords": [
     "canvas",
