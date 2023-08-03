@@ -1,7 +1,7 @@
 {
-  "name": "particle-system",
+  "name": "frolicking-flames",
   "version": "0.0.1",
-  "description": "generate some particle on canvas",
+  "description": "generate some particle for fireworks",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
   "scripts": {
