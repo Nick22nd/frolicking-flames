@@ -1,93 +1,94 @@
 
+import { sampleColor, sampleDirection, sampleNumber } from "../src/util";
 import { ParticleSystem, ChamberBox, Vector2, Color, ParticleConfig, Particle } from "../src/index";
-const ColorTest = Color.red
+const ColorTest = Color.blue
 const startPosition = new Vector2(200, 200)
 const endPosition = new Vector2(200, 150)
 console.log("ColorTest: ", ColorTest)
-function interactiveEmit() {
-    console.log("run");
+class Firework {
     
-    let canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
-    isContinue: boolean, timeoutID: number;
-    let ps = new ParticleSystem();
-    ps.effectors.push(new ChamberBox(0, 0, 400, 400));
-    let dt = 0.01;
-    let oldMousePosition = startPosition, newMousePosition = endPosition;
-    function start(canvasName: string, func: Function) {
-        if (timeoutID)
+    canvas: HTMLCanvasElement
+    ctx: CanvasRenderingContext2D
+    isContinue: boolean
+    timeoutID: number
+    ps: ParticleSystem
+    dt: number
+    newMousePosition: Vector2;
+    oldMousePosition: Vector2;
+    eventList: Map<string, Function>;
+    constructor(canvas: HTMLCanvasElement) {
+        this.canvas = canvas
+        this.ctx = canvas.getContext('2d')
+        this.ps = new ParticleSystem()
+        this.ps.effectors.push(new ChamberBox(0, 0, 400, 400))
+        this.dt = 0.01
+        this.newMousePosition = new Vector2(200, 200)
+        this.oldMousePosition = new Vector2(200, 150)
+        this.eventList = new Map();
+        this.start(this.step.bind(this))
+
+    }
+    start(func: Function) {
+        if (this.timeoutID)
             stop();
-        console.log('canvasName: ', canvasName);
+        this.isContinue = true;
     
-        canvas = document.getElementById(canvasName) as HTMLCanvasElement;
-        console.log(canvas, document.getElementById(canvasName));
-    
-        ctx = canvas.getContext("2d");
-        isContinue = true;
-    
-        let loop = function () {
+        let loop = () => {
             func();
-            if (isContinue)
-                timeoutID = setTimeout(loop, 10);
+            if (this.isContinue)
+                this.timeoutID = setTimeout(loop, 10);
         }
         loop();
     }
-    
-    function stop() {
-        clearTimeout(timeoutID);
-        isContinue = false;
+    stop() {
+        clearTimeout(this.timeoutID);
+        this.isContinue = false;
     }
-    
-    function clearCanvas() {
-        if (ctx != null)
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    function sampleDirection(angle1: number, angle2: number) {
-        let t = Math.random();
-        let theta = angle1 * t + angle2 * (1 - t);
-        return new Vector2(Math.cos(theta), Math.sin(theta));
-    }
-
-    function sampleColor(color1: Color, color2: Color) {
-        let t = Math.random();
-        return color1.multiply(t).add(color2.multiply(1 - t));
-    }
-
-    function sampleNumber(value1: number, value2: number) {
-        let t = Math.random();
-        return value1 * t + value2 * (1 - t);
-    }
-
-    function step() {
-        let velocity = newMousePosition.subtract(oldMousePosition).multiply(10);
-        velocity = velocity.add(sampleDirection(0, Math.PI * 2).multiply(20));
+    step() {
+        let velocity = this.newMousePosition.subtract(this.oldMousePosition).multiply(10);
+        velocity = velocity.add(sampleDirection(0, Math.PI * 2).multiply(70));
         let color = sampleColor(ColorTest, Color.yellow);
         let life = sampleNumber(1, 2);
         let size = sampleNumber(2, 4);
         let config: ParticleConfig = {
-            position: newMousePosition,
+            position: this.newMousePosition,
             velocity: velocity,
             life: life,
             color: color,
             size: size
         }
-        ps.emit(new Particle(config));
-        oldMousePosition = newMousePosition;
+        this.ps.emit(new Particle(config));
+        this.oldMousePosition = this.newMousePosition;
 
-        ps.simulate(dt);
+        this.ps.simulate(this.dt);
 
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ps.render(ctx);
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ps.render(this.ctx);
     }
+    enableMouse() {
+        console.log("listen: mouse")
+        const mouseEvent = (e: MouseEvent) => {
+            this.newMousePosition = new Vector2(e.offsetX, e.offsetY);
+        }
 
-    start("interactiveEmitCanvas", step);
-
-    canvas.onmousemove = function (e) {
-        newMousePosition = new Vector2(e.offsetX, e.offsetY);
+        this.eventList.set('mouse', mouseEvent);
+        this.canvas.addEventListener('mousemove', mouseEvent)
+    }
+    disableMouse() {
+       let event = this.eventList.has('mouse') && this.eventList.get('mouse') as (this: HTMLCanvasElement, ev: MouseEvent) => any
+       this.canvas.removeEventListener('mousemove', event)
     }
 }
-interactiveEmit();
+const canvasDom = document.getElementById('interactiveEmitCanvas') as HTMLCanvasElement
+const fw = new Firework(canvasDom)
+
 new EventSource('/esbuild').addEventListener('change', () =>  {
     location.reload()
     console.log("reload")
  })
+function toggleMouseTrace() {
+    console.log('test');
+    fw.enableMouse()
+}
+toggleMouseTrace()
