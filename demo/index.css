@@ -1,4 +1,18 @@
-body {
-    display: flex;
-    place-items: center;
-  }
+@font-face {
+  font-family: myFirstFont;
+  src: url(Borel-Regular.ttf);
+}
+
+h1 {
+  font-family: myFirstFont;
+  color: darkgreen;
+}
+
+.property {
+  border: 1px solid black;
+  display: flex;
+  justify-content: space-between;
+}
+.property span {
+  border: 1px solid black;
+}

@@ -30,7 +30,10 @@ export declare class Vector2 {
     dot(v: Vector2): number;
     zero(): Vector2;
 }
-
+export enum ParticleType {
+    raw,
+    child
+}
 export interface ParticleConfig {
     position: Vector2, 
     velocity: Vector2,
@@ -38,7 +41,8 @@ export interface ParticleConfig {
     age?: number,
     life: number, 
     color: Color, 
-    size: number
+    size: number,
+    type: ParticleType
 }
 declare class Color {
     r: number;

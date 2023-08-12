@@ -1,12 +1,13 @@
 
 import { sampleColor, sampleDirection, sampleNumber } from "../src/util";
 import { ParticleSystem, ChamberBox, Vector2, Color, ParticleConfig, Particle } from "../src/index";
-const ColorTest = Color.blue
-const startPosition = new Vector2(200, 200)
-const endPosition = new Vector2(200, 150)
+import { ParticleType } from "../src/type";
+const ColorTest = Color.red
+let isDebug = false
 console.log("ColorTest: ", ColorTest)
 class Firework {
-    
+    static startPosition = new Vector2(200, 200)
+    static endPosition = new Vector2(200, 150)
     canvas: HTMLCanvasElement
     ctx: CanvasRenderingContext2D
     isContinue: boolean
@@ -25,8 +26,32 @@ class Firework {
         this.newMousePosition = new Vector2(200, 200)
         this.oldMousePosition = new Vector2(200, 150)
         this.eventList = new Map();
+        this.prepare()
         this.start(this.step.bind(this))
-
+    }
+    prepare() {
+        let velocity = Firework.startPosition.subtract(Firework.endPosition).multiply(7);
+        velocity = velocity.add(sampleDirection(Math.PI * 1 / 4, Math.PI * 3 / 4).multiply(70));
+        let color = sampleColor(ColorTest, Color.yellow);
+        let life = sampleNumber(1, 2);
+        let size = sampleNumber(2, 4);
+        let config: ParticleConfig = {
+            position: new Vector2(200, 400),
+            velocity: velocity,
+            life: life,
+            color: color,
+            size: size,
+            type: ParticleType.raw,
+            age: 0
+        }
+        isDebug && console.table(config)
+        this.ps.emit(new Particle(config))
+        // setInterval(
+        //     () => {
+        //         console.log(config);
+                
+        //     }, 2000
+        // )
     }
     start(func: Function) {
         if (this.timeoutID)
@@ -45,19 +70,16 @@ class Firework {
         this.isContinue = false;
     }
     step() {
-        let velocity = this.newMousePosition.subtract(this.oldMousePosition).multiply(10);
-        velocity = velocity.add(sampleDirection(0, Math.PI * 2).multiply(70));
-        let color = sampleColor(ColorTest, Color.yellow);
-        let life = sampleNumber(1, 2);
-        let size = sampleNumber(2, 4);
-        let config: ParticleConfig = {
-            position: this.newMousePosition,
-            velocity: velocity,
-            life: life,
-            color: color,
-            size: size
+        const rawParticle = this.ps.particles.find(item => item.config.type === ParticleType.raw)
+        if(rawParticle && rawParticle.config.position.y <= sampleNumber(0, 200)) {
+            rawParticle.config.age = rawParticle.config.life;
+            for (let i = 0; i < 50; i++) {
+                this.addParticles(rawParticle.config.position);
+            }
         }
-        this.ps.emit(new Particle(config));
+        if(this.ps.particles.length === 0) {
+            this.prepare()
+        }
         this.oldMousePosition = this.newMousePosition;
 
         this.ps.simulate(this.dt);
@@ -66,6 +88,23 @@ class Firework {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ps.render(this.ctx);
     }
+    private addParticles(position: Vector2) {
+        let velocity = this.newMousePosition.subtract(this.oldMousePosition).multiply(10);
+        velocity = velocity.add(sampleDirection(0, Math.PI * 2).multiply(70));
+        let color = sampleColor(ColorTest, Color.yellow);
+        let life = sampleNumber(1, 2);
+        let size = sampleNumber(2, 4);
+        let config: ParticleConfig = {
+            position: position,
+            velocity: velocity,
+            life: life,
+            color: color,
+            size: size,
+            type: ParticleType.child
+        };
+        this.ps.emit(new Particle(config));
+    }
+
     enableMouse() {
         console.log("listen: mouse")
         const mouseEvent = (e: MouseEvent) => {
@@ -82,13 +121,28 @@ class Firework {
 }
 const canvasDom = document.getElementById('interactiveEmitCanvas') as HTMLCanvasElement
 const fw = new Firework(canvasDom)
-
+let toggleMouse = false;
 new EventSource('/esbuild').addEventListener('change', () =>  {
     location.reload()
     console.log("reload")
  })
 function toggleMouseTrace() {
-    console.log('test');
-    fw.enableMouse()
+    toggleMouse = !toggleMouse
+    toggleMouse ? fw.enableMouse() : fw.disableMouse()
 }
-toggleMouseTrace()
+// toggleMouseTrace()
+
+let mouseButton = document.getElementById('mouse')
+mouseButton.addEventListener('click', (e) => {
+    toggleMouseTrace()
+    isDebug = !isDebug
+    console.log(`${isDebug? 'enable' :'disable'} debug mode`);
+    
+    console.log(Object.entries(fw.ps.particles.pop().config))
+})
+function insertTable() {
+    let tableDOM = document.getElementById("config")
+    tableDOM.innerHTML = `<div>number: ${fw.ps.particles.length}</div>`
+    
+}
+setInterval(() => insertTable(), 50)
